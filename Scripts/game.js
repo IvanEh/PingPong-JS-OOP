@@ -16,6 +16,8 @@ var score = {player: 0, enemy: 0, winScore: 1};
 var enemyBoard;
 var playerBoard;
 var playerBoardTexture;
+var playerPowerScale = 100;
+var scale = {x: 4, y:3, w:88, h: 6, color: "#1b1464"};
 var ball;
 var trigger = {};
 var scoreText;
@@ -32,7 +34,7 @@ function create(){
     playerBoardTexture = game.make.bitmapData(96, 12);
     playerBoardTexture.context.drawImage(game.cache.getImage('board'),
         0, 0);
-    
+    updatePlayerTexture();
 
     playerBoard = game.add.sprite(game.world.centerX, game.height-padding, playerBoardTexture);
     playerBoard.anchor.set(0.5);
@@ -152,7 +154,9 @@ function win(){
 
 
 function updatePlayerTexture(){
-
+    var ctx = playerBoardTexture.context;
+    ctx.fillStyle = scale.color;
+    ctx.fillRect(scale.x, scale.y, scale.w*playerPowerScale/100, scale.h);
 }
 
 // TODO: add timer recycle
