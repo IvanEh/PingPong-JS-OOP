@@ -3,6 +3,7 @@ var game = new Phaser.Game(400, 300,Phaser.AUTO, 'gravi-pong', { preload: preloa
 function preload(){
     game.load.image('board', 'assets/board-blue.png'); 
     game.load.image('ball', 'assets/ball.png');
+    game.load.spritesheet('markers', 'assets/markers.png', 9, 9, 3);
 }
 
 var playerMaxVelocity = new Phaser.Point(250, 0);
@@ -30,6 +31,7 @@ function create(){
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     game.stage.backgroundColor = '#8a8a35';
+    markers();
 
     playerBoardTexture = game.make.bitmapData(96, 12);
     updatePlayerTexture();
@@ -61,6 +63,8 @@ function create(){
         ball.body.velocity.y *= -1;
 
     ball.body.bounce.set(1);
+
+
 
 
     trigger.win = game.add.sprite(0, 0, null);
@@ -127,6 +131,21 @@ function render(){
     game.debug.body(trigger.win);
 }
 
+var displayMarkers = [];
+function markers () {
+    var sprite = game.add.sprite(game.world.centerX, game.world.centerY, 'markers', 0);
+    displayMarkers.push(sprite);
+    sprite.anchor.set(0.45);
+
+    var sprite = game.add.sprite(0, game.world.centerY, 'markers', 1);
+    displayMarkers.push(sprite);
+    sprite.anchor.setTo(0, 0.45);
+
+    var sprite = game.add.sprite(game.width, game.world.centerY, 'markers', 2);
+    displayMarkers.push(sprite);
+    sprite.anchor.setTo(1, 0.45);
+
+}
 
 function onCollideBall(_ball, _board){
     var degree = 0;
