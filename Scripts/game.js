@@ -32,7 +32,7 @@ function create(){
     playerBoardTexture = game.make.bitmapData(96, 12);
     playerBoardTexture.context.drawImage(game.cache.getImage('board'),
         0, 0);
-
+    
 
     playerBoard = game.add.sprite(game.world.centerX, game.height-padding, playerBoardTexture);
     playerBoard.anchor.set(0.5);
