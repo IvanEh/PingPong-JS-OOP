@@ -15,6 +15,7 @@ var score = {player: 0, enemy: 0, winScore: 1};
 
 var enemyBoard;
 var playerBoard;
+var playerBoardTexture;
 var ball;
 var trigger = {};
 var scoreText;
@@ -28,7 +29,12 @@ function create(){
 
     game.stage.backgroundColor = '#8a8a35';
 
-    playerBoard = game.add.sprite(game.world.centerX, game.height-padding, 'board');
+    playerBoardTexture = game.make.bitmapData(96, 12);
+    playerBoardTexture.context.drawImage(game.cache.getImage('board'),
+        0, 0);
+
+
+    playerBoard = game.add.sprite(game.world.centerX, game.height-padding, playerBoardTexture);
     playerBoard.anchor.set(0.5);
     game.physics.enable(playerBoard, Phaser.Physics.ARCADE);
     playerBoard.body.collideWorldBounds = true;
@@ -106,6 +112,7 @@ function render(){
     game.debug.body(trigger.win);
 }
 
+
 function onCollideBall(_ball, _board){
     var degree = 0;
     if(_board.x < _ball.x && _board.body.velocity.x > 0){
@@ -141,6 +148,11 @@ function win(){
 
     msg.text = "Player win";
     msg.visible = true;
+}
+
+
+function updatePlayerTexture(){
+
 }
 
 // TODO: add timer recycle
