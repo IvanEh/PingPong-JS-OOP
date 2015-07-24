@@ -7,17 +7,17 @@ function preload(){
 
 var playerMaxVelocity = new Phaser.Point(250, 0);
 var moveAccelaration = new Phaser.Point(750, 0);
-var ballVelocity = new Phaser.Point(0, 200);
-var ballMaxVelocity = new Phaser.Point(400, 200);
+var ballVelocity = new Phaser.Point(0, 250);
+var ballMaxVelocity = new Phaser.Point(500, 400);
 var drag = 200;
 var padding = 25;
-var score = {player: 0, enemy: 0, winScore: 1};
+var score = {player: 0, enemy: 0, winScore: 3};
 
 var enemyBoard;
 var playerBoard;
 var playerBoardTexture;
-var playerPowerScale = 100;
-var scale = {x: 4, y:3, w:88, h: 6, color: "#1b1464"};
+var playerPowerScale = 75;
+var scale = {x: 4, y:3, w:88, h: 6, color: "#1b1464", step: 2};
 var ball;
 var trigger = {};
 var scoreText;
@@ -32,8 +32,6 @@ function create(){
     game.stage.backgroundColor = '#8a8a35';
 
     playerBoardTexture = game.make.bitmapData(96, 12);
-    playerBoardTexture.context.drawImage(game.cache.getImage('board'),
-        0, 0);
     updatePlayerTexture();
 
     playerBoard = game.add.sprite(game.world.centerX, game.height-padding, playerBoardTexture);
@@ -103,10 +101,25 @@ function update(){
         playerBoard.body.acceleration.setTo(-moveAccelaration.x, moveAccelaration.y);
         enemyBoard.body.acceleration.setTo(-moveAccelaration.x*1.5, moveAccelaration.y);
     }
-    else{
+    else
+       {
         playerBoard.body.acceleration.setTo(0);
         enemyBoard.body.acceleration.setTo(0);
     }
+
+    if(cursors.up.isDown && playerPowerScale > 0){
+        ball.body.velocity.add(0, -3);
+        if(playerPowerScale > 0)
+        playerPowerScale-=scale.step;
+    }
+    else
+    if(cursors.down.isDown && playerPowerScale < 100){
+        ball.body.velocity.add(0, 3);
+        playerPowerScale+=scale.step;
+    }
+  
+
+    updatePlayerTexture();
 
 }
 
@@ -138,7 +151,11 @@ trigger.onWin = function(_ball, _t){
 
 trigger.onLoose = function(_ball, _t){
     score.enemy++;
-    reposition();
+    if(score.enemy === score.winScore){
+        loose();
+    }else{
+        reposition();
+    }
 }
 
 function win(){
@@ -152,9 +169,22 @@ function win(){
     msg.visible = true;
 }
 
+function loose(){
+    ball.exists = false;
+    enemyBoard.body.velocity.set(0);
+    enemyBoard.body.acceleration.set(0);
+    playerBoard.body.velocity.set(0);
+    playerBoard.body.acceleration.set(0);
+
+    msg.text = "PC win. You lost!";
+    msg.visible = true;
+}
 
 function updatePlayerTexture(){
     var ctx = playerBoardTexture.context;
+    playerBoardTexture.clear();
+    ctx.drawImage(game.cache.getImage('board'),
+        0, 0);
     ctx.fillStyle = scale.color;
     ctx.fillRect(scale.x, scale.y, scale.w*playerPowerScale/100, scale.h);
 }
