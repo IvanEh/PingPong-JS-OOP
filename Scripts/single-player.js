@@ -93,11 +93,9 @@ SinglePlayer.prototype.update = function(){
   
 
     this.updatePlayerTexture();
-
 }
 
 SinglePlayer.prototype.render = function(){
-    this.game.debug.body(this.trigger.win);
 }
 
 
