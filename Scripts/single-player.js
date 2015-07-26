@@ -9,14 +9,12 @@ Settings = {
 		maxVelocity: new Phaser.Point(500, 400),
 	},
 
-	winScore: 3,
+	winScore: 1,
 	drag: 200,
 	padding: 25,
 }
 
 function SinglePlayer(){
-	 
-
 	 this.enemyBoard;
 	 this.playerBoard;
 	 this.playerBoardTexture;
@@ -28,6 +26,8 @@ function SinglePlayer(){
 	 this.msg;
 	 this.score= {player: 0, enemy: 0};
 	 this.cursors;
+
+	 // this.game.stage.smoothed = false;
 }
 
 SinglePlayer.prototype.preload = function(){
@@ -40,6 +40,7 @@ SinglePlayer.prototype.create = function(){
     this.physics.startSystem(Phaser.Physics.ARCADE);
 
     this.stage.backgroundColor = '#8a8a35';
+	this.game.stage.smoothed = false;
     this.markers();
 
     this.playerBoardTexture = this.make.bitmapData(96, 12);
@@ -89,13 +90,11 @@ SinglePlayer.prototype.create = function(){
 
 
     this.scoreText = this.add.text(this.game.width - 60, 8, "0 - 0", {font: "18px Arial"});
-    this.msg = this.add.text(this.world.centerX+0.3, this.world.centerY+0.3, "3");
-    // this.msg.anchor.set(0.5);
+    this.msg = this.add.text(this.world.centerX, this.world.centerY, "3");
+    this.msg.anchor.set(0.5);
     this.msg.setStyle({fontSize:"21px"});
     // console.log(this.msg);
     this.msg.visible = false;
-    // this.msg.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
-    this.msg.smoothed = false;
     // this.scoreText.anchor.set(0.5, 0.5);
 }
 
