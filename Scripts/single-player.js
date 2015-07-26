@@ -1,11 +1,21 @@
+Settings = {
+	player: {
+		maxVelocity: new Phaser.Point(250, 0),
+		acceleration: new Phaser.Point(750, 0)
+	},
+
+	ball: {
+		velocity: new Phaser.Point(0, 250),
+		maxVelocity: new Phaser.Point(500, 400),
+	},
+
+	winScore: 3,
+	drag: 200,
+	padding: 25,
+}
+
 function SinglePlayer(){
-	 this.playerMaxVelocity = new Phaser.Point(250, 0);
-	 this.moveAccelaration = new Phaser.Point(750, 0);
-	 this.ballVelocity = new Phaser.Point(0, 250);
-	 this.ballMaxVelocity = new Phaser.Point(500, 400);
-	 this.drag = 200;
-	 this.padding = 25;
-	 this.score = {player: 0, enemy: 0, winScore: 3};
+	 
 
 	 this.enemyBoard;
 	 this.playerBoard;
@@ -16,7 +26,7 @@ function SinglePlayer(){
 	 this.trigger = {};
 	 this.scoreText;
 	 this.msg;
-
+	 this.score= {player: 0, enemy: 0};
 	 this.cursors;
 }
 
@@ -35,20 +45,20 @@ SinglePlayer.prototype.create = function(){
     this.playerBoardTexture = this.make.bitmapData(96, 12);
     this.updatePlayerTexture();
 
-    this.playerBoard = this.add.sprite(this.world.centerX, this.game.height-this.padding, this.playerBoardTexture);
+    this.playerBoard = this.add.sprite(this.world.centerX, this.game.height-Settings.padding, this.playerBoardTexture);
     this.playerBoard.anchor.set(0.5);
     this.physics.enable(this.playerBoard, Phaser.Physics.ARCADE);
     this.playerBoard.body.collideWorldBounds = true;
-    this.playerBoard.body.drag.set(this.drag);
-    this.playerBoard.body.maxVelocity.copyFrom(this.playerMaxVelocity);
+    this.playerBoard.body.drag.set(Settings.drag);
+    this.playerBoard.body.maxVelocity.copyFrom(Settings.player.maxVelocity);
     this.playerBoard.body.immovable = true;
 
-    enemyBoard = this.add.sprite(this.world.centerX, this.padding, 'board');
+    enemyBoard = this.add.sprite(this.world.centerX, Settings.padding, 'board');
     this.physics.enable(enemyBoard, Phaser.Physics.ARCADE);
     enemyBoard.anchor.set(0.5);
     enemyBoard.body.collideWorldBounds = true;
-    enemyBoard.body.drag.set(this.drag);
-    enemyBoard.body.maxVelocity.copyFrom(this.playerMaxVelocity);
+    enemyBoard.body.drag.set(Settings.drag);
+    enemyBoard.body.maxVelocity.copyFrom(Settings.player.maxVelocity);
     enemyBoard.body.immovable = true;
 
 
@@ -57,7 +67,7 @@ SinglePlayer.prototype.create = function(){
     this.ball.anchor.set(0.5);
     this.ball.body.collideWorldBounds = true;
     var chance = Math.random();
-    this.ball.body.velocity.y = this.ballVelocity.y;
+    this.ball.body.velocity.y = Settings.ball.velocity.y;
     if(chance <= 0.5)
         this.ball.body.velocity.y *= -1;
 
@@ -79,16 +89,19 @@ SinglePlayer.prototype.create = function(){
 
 
     this.scoreText = this.add.text(this.game.width - 60, 8, "0 - 0", {font: "18px Arial"});
-    this.msg = this.add.text(this.world.centerX, this.world.centerY, "3");
-    this.msg.anchor.set(0.5);
-    this.msg.setStyle({fontSize:"20px"});
+    this.msg = this.add.text(this.world.centerX+0.3, this.world.centerY+0.3, "3");
+    // this.msg.anchor.set(0.5);
+    this.msg.setStyle({fontSize:"21px"});
+    // console.log(this.msg);
     this.msg.visible = false;
+    // this.msg.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+    this.msg.smoothed = false;
     // this.scoreText.anchor.set(0.5, 0.5);
 }
 
 
 SinglePlayer.prototype.update = function(){
-    this.physics.arcade.collide(this.ball, this.playerBoard, this.nCollideBall, null, this);
+    this.physics.arcade.collide(this.ball, this.playerBoard, this.onCollideBall, null, this);
     this.physics.arcade.collide(this.ball, enemyBoard);
     this.physics.arcade.overlap(this.ball, this.trigger.win, this.onWin,null,  this);
     this.physics.arcade.overlap(this.ball, this.trigger.loose, this.onLoose, null, this);
@@ -96,13 +109,13 @@ SinglePlayer.prototype.update = function(){
     this.scoreText.text = this.score.player + " - " + this.score.enemy;
 
     if(this.cursors.right.isDown){
-        this.playerBoard.body.acceleration.setTo(this.moveAccelaration.x, this.moveAccelaration.y);
-        enemyBoard.body.acceleration.setTo(this.moveAccelaration.x*1.5, this.moveAccelaration.y);
+        this.playerBoard.body.acceleration.setTo(Settings.player.acceleration.x, Settings.player.acceleration.y);
+        enemyBoard.body.acceleration.setTo(Settings.player.acceleration.x*1.5, Settings.player.acceleration.y);
     }
     else
     if(this.cursors.left.isDown){
-        this.playerBoard.body.acceleration.setTo(-this.moveAccelaration.x, this.moveAccelaration.y);
-        enemyBoard.body.acceleration.setTo(-this.moveAccelaration.x*1.5, this.moveAccelaration.y);
+        this.playerBoard.body.acceleration.setTo(-Settings.player.acceleration.x, Settings.player.acceleration.y);
+        enemyBoard.body.acceleration.setTo(-Settings.player.acceleration.x*1.5, Settings.player.acceleration.y);
     }
     else
        {
@@ -149,10 +162,10 @@ SinglePlayer.prototype.markers = function () {
 SinglePlayer.prototype.onCollideBall = function(_ball, _board){
     var degree = 0;
     if(_board.x < _ball.x && _board.body.velocity.x > 0){
-        degree = 45*_board.body.velocity.x/this.playerMaxVelocity.x;
+        degree = 45*_board.body.velocity.x/Settings.player.maxVelocity.x;
     }else
     if(_board.body.velocity.x < 0){
-        degree = 45*_board.body.velocity.x/this.playerMaxVelocity.x;
+        degree = 45*_board.body.velocity.x/Settings.player.maxVelocity.x;
     }
         _ball.body.velocity.rotate(0, 0, degree, true);
     
@@ -160,7 +173,7 @@ SinglePlayer.prototype.onCollideBall = function(_ball, _board){
 
 SinglePlayer.prototype.onWin = function(_ball, _t){
     this.score.player++;
-    if(this.score.player === this.score.winScore){
+    if(this.score.player === Settings.winScore){
         this.win();
     }else{
         this.reposition();
@@ -169,7 +182,7 @@ SinglePlayer.prototype.onWin = function(_ball, _t){
 
 SinglePlayer.prototype.onLoose = function(_ball, _t){
     this.score.enemy++;
-    if(this.score.enemy === this.score.winScore){
+    if(this.score.enemy === Settings.winScore){
         this.loose();
     }else{
         this.reposition();
@@ -216,19 +229,19 @@ SinglePlayer.prototype.reposition = function(){
     this.ball.body.acceleration.set(0);
 
     enemyBoard.x = this.world.centerX;
-    enemyBoard.y = this.padding;
+    enemyBoard.y = Settings.padding;
     enemyBoard.body.velocity.set(0);
     enemyBoard.body.acceleration.set(0);
 
     this.playerBoard.x = this.world.centerX;
-    this.playerBoard.y = this.game.height-this.padding;
+    this.playerBoard.y = this.game.height-Settings.padding;
     this.playerBoard.body.velocity.set(0);
     this.playerBoard.body.acceleration.set(0);
 
     this.msg.visible = true;
 
     this.msg.text = "3";
-    this.msg.anchor.set(0.5);
+    // this.msg.anchor.set(0.5);
     var msg = this.msg;
     var that = this;
 
@@ -243,7 +256,7 @@ SinglePlayer.prototype.reposition = function(){
         msg.visible = false;
         var chance = Math.random();
         
-        that.ball.body.velocity.y = that.ballVelocity.y;
+        that.ball.body.velocity.y = Settings.ball.velocity.y;
         if(chance <= 0.5)
             that.ball.body.velocity.y *= -1; 
     });
