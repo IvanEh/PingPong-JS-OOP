@@ -41,7 +41,6 @@ SinglePlayer.prototype.create = function(){
 
     this.stage.backgroundColor = '#8a8a35';
 	this.game.stage.smoothed = false;
-    this.markers();
 
     this.setUpPlayer();
 
@@ -149,6 +148,8 @@ SinglePlayer.prototype.setUpTriggers = function(){
 }
 
 SinglePlayer.prototype.setUpGUI = function() {
+    this.markers();
+
     this.scoreText = this.add.text(this.game.width - 60, 8, "0 - 0", {font: "18px Arial"});
     this.msg = this.add.text(this.world.centerX, this.world.centerY, "3");
     this.msg.anchor.set(0.5);
@@ -156,7 +157,6 @@ SinglePlayer.prototype.setUpGUI = function() {
     this.msg.visible = false;
 };
 
-var displayMarkers = [];
 SinglePlayer.prototype.markers = function () {
     var sprite = this.add.sprite(this.world.centerX, this.world.centerY, 'markers', 0);
     displayMarkers.push(sprite);
@@ -169,7 +169,6 @@ SinglePlayer.prototype.markers = function () {
     var sprite = this.add.sprite(this.game.width, this.world.centerY, 'markers', 2);
     displayMarkers.push(sprite);
     sprite.anchor.setTo(1, 0.45);
-
 }
 
 SinglePlayer.prototype.onCollideBall = function(_ball, _board){
