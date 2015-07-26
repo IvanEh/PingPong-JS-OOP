@@ -43,59 +43,17 @@ SinglePlayer.prototype.create = function(){
 	this.game.stage.smoothed = false;
     this.markers();
 
-    this.playerBoardTexture = this.make.bitmapData(96, 12);
-    this.updatePlayerTexture();
+    this.setUpPlayer();
 
-    this.playerBoard = this.add.sprite(this.world.centerX, this.game.height-Settings.padding, this.playerBoardTexture);
-    this.playerBoard.anchor.set(0.5);
-    this.physics.enable(this.playerBoard, Phaser.Physics.ARCADE);
-    this.playerBoard.body.collideWorldBounds = true;
-    this.playerBoard.body.drag.set(Settings.drag);
-    this.playerBoard.body.maxVelocity.copyFrom(Settings.player.maxVelocity);
-    this.playerBoard.body.immovable = true;
+    this.setUpEnemy();
 
-    enemyBoard = this.add.sprite(this.world.centerX, Settings.padding, 'board');
-    this.physics.enable(enemyBoard, Phaser.Physics.ARCADE);
-    enemyBoard.anchor.set(0.5);
-    enemyBoard.body.collideWorldBounds = true;
-    enemyBoard.body.drag.set(Settings.drag);
-    enemyBoard.body.maxVelocity.copyFrom(Settings.player.maxVelocity);
-    enemyBoard.body.immovable = true;
+    this.setUpBall();
 
+    this.setUpTriggers();
 
-    this.ball = this.add.sprite(this.world.centerX, this.world.centerY, 'ball');
-    this.physics.enable(this.ball, Phaser.Physics.ARCADE);
-    this.ball.anchor.set(0.5);
-    this.ball.body.collideWorldBounds = true;
-    var chance = Math.random();
-    this.ball.body.velocity.y = Settings.ball.velocity.y;
-    if(chance <= 0.5)
-        this.ball.body.velocity.y *= -1;
-
-    this.ball.body.bounce.set(1);
-
-
-
-
-    this.trigger.win = this.add.sprite(0, 0, null);
-    this.physics.arcade.enable(this.trigger.win);
-    this.trigger.win.body.setSize(this.game.width, enemyBoard.top, 0, 0);
-
-    this.trigger.loose = this.add.sprite(0, this.playerBoard.bottom, null);
-    this.physics.arcade.enable(this.trigger.loose);
-    this.trigger.loose.body.setSize(this.game.width, this.game.height - this.playerBoard.bottom, 0, 0);
-
+    this.setUpGUI();
 
     this.cursors = this.input.keyboard.createCursorKeys();
-
-
-    this.scoreText = this.add.text(this.game.width - 60, 8, "0 - 0", {font: "18px Arial"});
-    this.msg = this.add.text(this.world.centerX, this.world.centerY, "3");
-    this.msg.anchor.set(0.5);
-    this.msg.setStyle({fontSize:"21px"});
-    // console.log(this.msg);
-    this.msg.visible = false;
-    // this.scoreText.anchor.set(0.5, 0.5);
 }
 
 
@@ -141,6 +99,64 @@ SinglePlayer.prototype.update = function(){
 SinglePlayer.prototype.render = function(){
     this.game.debug.body(this.trigger.win);
 }
+
+
+SinglePlayer.prototype.setUpPlayer = function() {
+    this.playerBoardTexture = this.make.bitmapData(96, 12);
+    this.updatePlayerTexture();
+
+    this.playerBoard = this.add.sprite(this.world.centerX, this.game.height-Settings.padding, this.playerBoardTexture);
+    this.playerBoard.anchor.set(0.5);
+    this.physics.enable(this.playerBoard, Phaser.Physics.ARCADE);
+    this.playerBoard.body.collideWorldBounds = true;
+    this.playerBoard.body.drag.set(Settings.drag);
+    this.playerBoard.body.maxVelocity.copyFrom(Settings.player.maxVelocity);
+    this.playerBoard.body.immovable = true;    
+};
+
+SinglePlayer.prototype.setUpEnemy = function() {
+    enemyBoard = this.add.sprite(this.world.centerX, Settings.padding, 'board');
+    this.physics.enable(enemyBoard, Phaser.Physics.ARCADE);
+    enemyBoard.anchor.set(0.5);
+    enemyBoard.body.collideWorldBounds = true;
+    enemyBoard.body.drag.set(Settings.drag);
+    enemyBoard.body.maxVelocity.copyFrom(Settings.player.maxVelocity);
+    enemyBoard.body.immovable = true;
+};
+
+SinglePlayer.prototype.setUpBall = function() {
+    this.ball = this.add.sprite(this.world.centerX, this.world.centerY, 'ball');
+    
+    this.physics.enable(this.ball, Phaser.Physics.ARCADE);
+    this.ball.body.collideWorldBounds = true;
+    this.ball.body.bounce.set(1);
+    
+    this.ball.anchor.set(0.5);
+    
+    var chance = Math.random();
+    this.ball.body.velocity.y = Settings.ball.velocity.y;
+    if(chance <= 0.5)
+        this.ball.body.velocity.y *= -1;
+};
+
+SinglePlayer.prototype.setUpTriggers = function(){
+    this.trigger.win = this.add.sprite(0, 0, null);
+    this.physics.arcade.enable(this.trigger.win);
+    this.trigger.win.body.setSize(this.game.width, enemyBoard.top, 0, 0);
+
+    this.trigger.loose = this.add.sprite(0, this.playerBoard.bottom, null);
+    this.physics.arcade.enable(this.trigger.loose);
+    this.trigger.loose.body.setSize(this.game.width,
+         this.game.height - this.playerBoard.bottom, 0, 0);
+}
+
+SinglePlayer.prototype.setUpGUI = function() {
+    this.scoreText = this.add.text(this.game.width - 60, 8, "0 - 0", {font: "18px Arial"});
+    this.msg = this.add.text(this.world.centerX, this.world.centerY, "3");
+    this.msg.anchor.set(0.5);
+    this.msg.setStyle({fontSize:"21px"});
+    this.msg.visible = false;
+};
 
 var displayMarkers = [];
 SinglePlayer.prototype.markers = function () {
