@@ -26,6 +26,7 @@ function SinglePlayer(){
 	 this.msg;
 	 this.score= {player: 0, enemy: 0};
 	 this.cursors;
+     this.displayMarkers = [];
 
 	 // this.game.stage.smoothed = false;
 }
@@ -159,15 +160,15 @@ SinglePlayer.prototype.setUpGUI = function() {
 
 SinglePlayer.prototype.markers = function () {
     var sprite = this.add.sprite(this.world.centerX, this.world.centerY, 'markers', 0);
-    displayMarkers.push(sprite);
+    this.displayMarkers.push(sprite);
     sprite.anchor.set(0.45);
 
     var sprite = this.add.sprite(0, this.world.centerY, 'markers', 1);
-    displayMarkers.push(sprite);
+    this.displayMarkers.push(sprite);
     sprite.anchor.setTo(0, 0.45);
 
     var sprite = this.add.sprite(this.game.width, this.world.centerY, 'markers', 2);
-    displayMarkers.push(sprite);
+    this.displayMarkers.push(sprite);
     sprite.anchor.setTo(1, 0.45);
 }
 
