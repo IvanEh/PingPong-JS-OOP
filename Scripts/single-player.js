@@ -1,7 +1,7 @@
 Settings = {
 	player: {
-		maxVelocity: new Phaser.Point(250, 0),
-		acceleration: new Phaser.Point(750, 0)
+		maxVelocity: new Phaser.Point(350, 0),
+		acceleration: new Phaser.Point(650, 0)
 	},
 
 	ball: {
@@ -41,6 +41,7 @@ SinglePlayer.prototype.create = function(){
     this.physics.startSystem(Phaser.Physics.ARCADE);
 
     this.stage.backgroundColor = '#8a8a35';
+    var background = new TriangBackground(this);
 	this.game.stage.smoothed = false;
 
     this.setUpBall();
@@ -177,11 +178,12 @@ SinglePlayer.prototype.markers = function () {
 SinglePlayer.prototype.onCollideBall = function(_ball, _board){
     var degree = 0;
     var left = _ball.x - _ball.width/4;
+    var right = _ball.x + _ball.width/4;
     if(_board.x < left  && _board.body.velocity.x > 0){
-        degree = 30*_board.body.velocity.x/Settings.player.maxVelocity.x;
+        degree = 40*_board.body.velocity.x/Settings.player.maxVelocity.x;
     }else
-    if(_board.body.velocity.x < 0){
-        degree = 30*_board.body.velocity.x/Settings.player.maxVelocity.x;
+    if(_board.x > left &&_board.body.velocity.x < 0){
+        degree = 40*_board.body.velocity.x/Settings.player.maxVelocity.x;
     }
 
      _ball.body.velocity.rotate(0, 0, degree, true);
