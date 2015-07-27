@@ -40,8 +40,8 @@ SinglePlayer.prototype.preload = function(){
 SinglePlayer.prototype.create = function(){
     this.physics.startSystem(Phaser.Physics.ARCADE);
 
-    this.stage.backgroundColor = '#8a8a35';
-    var background = new TriangBackground(this);
+    this.stage.backgroundColor = '#80c0c5';
+    // var background = new TriangBackground(this);
 	this.game.stage.smoothed = false;
 
     this.setUpBall();
