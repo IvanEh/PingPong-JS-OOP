@@ -9,7 +9,7 @@ Settings = {
 		maxVelocity: new Phaser.Point(500, 400),
 	},
 
-	winScore: 1,
+	winScore: 3,
 	drag: 200,
 	padding: 25,
 }
@@ -19,7 +19,7 @@ function SinglePlayer(){
 	 this.playerBoard;
 	 this.playerBoardTexture;
 	 this.playerPowerScale = 75;
-	 this.graviScale = {x: 4, y:3, w:88, h: 6, color: "#1b1464", step: 2};
+	 this.graviScale = {x: 4, y:3, w:88, h: 6, color: "#1b1464", step: 3};
 	 this.ball;
 	 this.trigger = {};
 	 this.scoreText;
@@ -43,11 +43,11 @@ SinglePlayer.prototype.create = function(){
     this.stage.backgroundColor = '#8a8a35';
 	this.game.stage.smoothed = false;
 
+    this.setUpBall();
+
     this.setUpPlayer();
 
     this.setUpEnemy();
-
-    this.setUpBall();
 
     this.setUpTriggers();
 
@@ -59,7 +59,7 @@ SinglePlayer.prototype.create = function(){
 
 SinglePlayer.prototype.update = function(){
     this.physics.arcade.collide(this.ball, this.playerBoard, this.onCollideBall, null, this);
-    this.physics.arcade.collide(this.ball, enemyBoard);
+    this.physics.arcade.collide(this.ball, this.enemyBoard);
     this.physics.arcade.overlap(this.ball, this.trigger.win, this.onWin,null,  this);
     this.physics.arcade.overlap(this.ball, this.trigger.loose, this.onLoose, null, this);
 
@@ -67,17 +67,17 @@ SinglePlayer.prototype.update = function(){
 
     if(this.cursors.right.isDown){
         this.playerBoard.body.acceleration.setTo(Settings.player.acceleration.x, Settings.player.acceleration.y);
-        enemyBoard.body.acceleration.setTo(Settings.player.acceleration.x*1.5, Settings.player.acceleration.y);
+        this.enemyBoard.body.acceleration.setTo(Settings.player.acceleration.x*1.5, Settings.player.acceleration.y);
     }
     else
     if(this.cursors.left.isDown){
         this.playerBoard.body.acceleration.setTo(-Settings.player.acceleration.x, Settings.player.acceleration.y);
-        enemyBoard.body.acceleration.setTo(-Settings.player.acceleration.x*1.5, Settings.player.acceleration.y);
+        this.enemyBoard.body.acceleration.setTo(-Settings.player.acceleration.x*1.5, Settings.player.acceleration.y);
     }
     else
        {
         this.playerBoard.body.acceleration.setTo(0);
-        enemyBoard.body.acceleration.setTo(0);
+        this.enemyBoard.body.acceleration.setTo(0);
     }
 
     if(this.cursors.up.isDown && this.playerPowerScale > 0){
@@ -113,13 +113,15 @@ SinglePlayer.prototype.setUpPlayer = function() {
 };
 
 SinglePlayer.prototype.setUpEnemy = function() {
-    enemyBoard = this.add.sprite(this.world.centerX, Settings.padding, 'board');
-    this.physics.enable(enemyBoard, Phaser.Physics.ARCADE);
-    enemyBoard.anchor.set(0.5);
-    enemyBoard.body.collideWorldBounds = true;
-    enemyBoard.body.drag.set(Settings.drag);
-    enemyBoard.body.maxVelocity.copyFrom(Settings.player.maxVelocity);
-    enemyBoard.body.immovable = true;
+    this.enemyBoard = this.add.sprite(this.world.centerX, Settings.padding, 'board');
+    this.physics.enable(this.enemyBoard, Phaser.Physics.ARCADE);
+    this.enemyBoard.anchor.set(0.5);
+    this.enemyBoard.body.collideWorldBounds = true;
+    this.enemyBoard.body.drag.set(Settings.drag);
+    this.enemyBoard.body.maxVelocity.copyFrom(Settings.player.maxVelocity);
+    this.enemyBoard.body.immovable = true;
+
+    new PrimitiveAI(this, this.enemyBoard, this.ball);
 };
 
 SinglePlayer.prototype.setUpBall = function() {
@@ -140,7 +142,7 @@ SinglePlayer.prototype.setUpBall = function() {
 SinglePlayer.prototype.setUpTriggers = function(){
     this.trigger.win = this.add.sprite(0, 0, null);
     this.physics.arcade.enable(this.trigger.win);
-    this.trigger.win.body.setSize(this.game.width, enemyBoard.top, 0, 0);
+    this.trigger.win.body.setSize(this.game.width, this.enemyBoard.top, 0, 0);
 
     this.trigger.loose = this.add.sprite(0, this.playerBoard.bottom, null);
     this.physics.arcade.enable(this.trigger.loose);
@@ -204,8 +206,8 @@ SinglePlayer.prototype.onLoose = function(_ball, _t){
 
 SinglePlayer.prototype.win = function(){
     this.ball.exists = false;
-    enemyBoard.body.velocity.set(0);
-    enemyBoard.body.acceleration.set(0);
+    this.enemyBoard.body.velocity.set(0);
+    this.enemyBoard.body.acceleration.set(0);
     this.playerBoard.body.velocity.set(0);
     this.playerBoard.body.acceleration.set(0);
 
@@ -215,8 +217,8 @@ SinglePlayer.prototype.win = function(){
 
 SinglePlayer.prototype.loose = function(){
     this.ball.exists = false;
-    enemyBoard.body.velocity.set(0);
-    enemyBoard.body.acceleration.set(0);
+    this.enemyBoard.body.velocity.set(0);
+    this.enemyBoard.body.acceleration.set(0);
     this.playerBoard.body.velocity.set(0);
     this.playerBoard.body.acceleration.set(0);
 
@@ -241,10 +243,10 @@ SinglePlayer.prototype.reposition = function(){
     this.ball.body.velocity.set(0);
     this.ball.body.acceleration.set(0);
 
-    enemyBoard.x = this.world.centerX;
-    enemyBoard.y = Settings.padding;
-    enemyBoard.body.velocity.set(0);
-    enemyBoard.body.acceleration.set(0);
+    this.enemyBoard.x = this.world.centerX;
+    this.enemyBoard.y = Settings.padding;
+    this.enemyBoard.body.velocity.set(0);
+    this.enemyBoard.body.acceleration.set(0);
 
     this.playerBoard.x = this.world.centerX;
     this.playerBoard.y = this.game.height-Settings.padding;
