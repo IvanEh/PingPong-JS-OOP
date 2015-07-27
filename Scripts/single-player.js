@@ -59,7 +59,7 @@ SinglePlayer.prototype.create = function(){
 
 SinglePlayer.prototype.update = function(){
     this.physics.arcade.collide(this.ball, this.playerBoard, this.onCollideBall, null, this);
-    this.physics.arcade.collide(this.ball, this.enemyBoard);
+    this.physics.arcade.collide(this.ball, this.enemyBoard, this.onCollideBall, null, this);
     this.physics.arcade.overlap(this.ball, this.trigger.win, this.onWin,null,  this);
     this.physics.arcade.overlap(this.ball, this.trigger.loose, this.onLoose, null, this);
 
@@ -176,13 +176,15 @@ SinglePlayer.prototype.markers = function () {
 
 SinglePlayer.prototype.onCollideBall = function(_ball, _board){
     var degree = 0;
-    if(_board.x < _ball.x && _board.body.velocity.x > 0){
-        degree = 45*_board.body.velocity.x/Settings.player.maxVelocity.x;
+    var left = _ball.x - _ball.width/4;
+    if(_board.x < left  && _board.body.velocity.x > 0){
+        degree = 30*_board.body.velocity.x/Settings.player.maxVelocity.x;
     }else
     if(_board.body.velocity.x < 0){
-        degree = 45*_board.body.velocity.x/Settings.player.maxVelocity.x;
+        degree = 30*_board.body.velocity.x/Settings.player.maxVelocity.x;
     }
-        _ball.body.velocity.rotate(0, 0, degree, true);
+
+     _ball.body.velocity.rotate(0, 0, degree, true);
     
 }
 
