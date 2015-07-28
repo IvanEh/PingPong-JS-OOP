@@ -9,7 +9,7 @@ Settings = {
 		maxVelocity: new Phaser.Point(500, 400),
 	},
 
-	winScore: 1,
+	winScore: 2,
 	drag: 200,
 	padding: 25,
 }
@@ -42,28 +42,7 @@ SinglePlayer.prototype.create = function(){
     this.physics.startSystem(Phaser.Physics.ARCADE);
   
     this.stage.backgroundColor = '#80c0c5';
-  
-    this.mainMenuBtn = new Button("Main menu", "center", this.game.world.centerY/2 + 15, 150, 30, this, "rgb(60, 0, 0)", function(_this){return function() {
-        _this.state.start("MainMenu");
-        _this.unsoftPause();
-    }}(this));
-    this.mainMenuBtn.sprite.kill();
-    this.mainMenuBtn.fontColor = "rgb(130, 143, 208)";
-
-    this.restartMenu = new Button("Restart", "center", this.mainMenuBtn.sprite.bottom + 15, 150, 30, this, "rgb(60, 0, 0)", function(_this){return function() {
-        _this.unsoftPause();
-        _this.reposition();
-        _this.score.player = 0;
-        _this.score.enemy = 0;
-    }}(this));
-    this.restartMenu.sprite.kill();
-    this.restartMenu.fontColor = "rgb(130, 143, 208)";
-
-    this.mainMenuBtn.handlePause = true;
-    this.restartMenu.handlePause = true;
-
-
-    // var background = new TriangBackground(this);
+      // var background = new TriangBackground(this);
 	this.game.stage.smoothed = false;
 
     this.setUpBall();
@@ -75,6 +54,7 @@ SinglePlayer.prototype.create = function(){
     this.setUpTriggers();
 
     this.setUpGUI();
+    this.setUpEndMenu();
 
     this.cursors = this.input.keyboard.createCursorKeys();
 }
@@ -123,17 +103,49 @@ SinglePlayer.prototype.render = function(){
 }
 
 
-SinglePlayer.prototype.softPause = function(){
+SinglePlayer.prototype.setUpEndMenu = function(){
+    var btnWidth = 150;
+    var btnHeight = 30;
+    var btnBg = "rgb(60, 0, 0)";
+    var btnPadding = 15;
+    var btnFontColor = "rgb(130, 143, 208)";
+
+    this.mainMenuBtn = new Button("Main menu", "center", this.game.world.centerY/2 + btnPadding, btnWidth, btnHeight, this, btnBg, 
+    function(_this){
+        return function() {
+            _this.state.start("MainMenu");
+            _this.game.paused = false;
+            _this.mainMenuBtn.sprite.kill();
+            _this.restartMenu.sprite.kill();
+        }
+    }(this)     );
+    this.mainMenuBtn.sprite.kill();
+    this.mainMenuBtn.fontColor = btnFontColor;
+
+    this.restartMenu = new Button("Restart", "center", this.mainMenuBtn.sprite.bottom + btnPadding, 150, 30, this, "rgb(60, 0, 0)",
+    function(_this){
+        return function() {
+            _this.game.paused = false;
+            _this.mainMenuBtn.sprite.kill();
+            _this.restartMenu.sprite.kill();
+            _this.restartParty();
+            _this.score.player = 0;
+            _this.score.enemy = 0;
+        }
+    }(this)    );
+    
+    this.restartMenu.sprite.kill();
+    this.restartMenu.fontColor = btnFontColor;
+
+    this.mainMenuBtn.handlePause = true;
+    this.restartMenu.handlePause = true;
+}
+
+SinglePlayer.prototype.startEndMenu = function(){
     this.game.paused = true;
     this.mainMenuBtn.sprite.revive();
     this.restartMenu.sprite.revive();
 }
-
-SinglePlayer.prototype.unsoftPause = function() {
-    this.game.paused = false;
-    this.mainMenuBtn.sprite.kill();
-    this.restartMenu.sprite.kill();
-};
 
 SinglePlayer.prototype.setUpPlayer = function() {
     this.playerBoardTexture = this.make.bitmapData(96, 12);
@@ -190,10 +202,17 @@ SinglePlayer.prototype.setUpGUI = function() {
     this.markers();
 
     this.scoreText = this.add.text(this.game.width - 60, 8, "0 - 0", {font: "18px Arial"});
+
     this.msg = this.add.text(this.world.centerX, this.world.centerY/2, "3");
     this.msg.anchor.set(0.5);
     this.msg.setStyle({fontSize:"21px"});
     this.msg.visible = false;
+
+    this.timerMsg = this.add.text(this.world.centerX, this.ball.top - 10, "3");
+    this.timerMsg.anchor.set(0.5);
+    this.timerMsg.setStyle({fontSize:"21px"});
+    this.timerMsg.visible = false;
+
 };
 
 SinglePlayer.prototype.markers = function () {
@@ -230,7 +249,7 @@ SinglePlayer.prototype.onWin = function(_ball, _t){
     if(this.score.player === Settings.winScore){
         this.win();
     }else{
-        this.reposition();
+        this.restartParty();
     }
 }
 
@@ -239,7 +258,7 @@ SinglePlayer.prototype.onLoose = function(_ball, _t){
     if(this.score.enemy === Settings.winScore){
         this.loose();
     }else{
-        this.reposition();
+        this.restartParty();
     }
 }
 
@@ -252,7 +271,7 @@ SinglePlayer.prototype.win = function(){
 
     this.msg.text = "Player win";
     this.msg.visible = true;
-    this.softPause();
+    this.startEndMenu();
 }
 
 SinglePlayer.prototype.loose = function(){
@@ -264,7 +283,7 @@ SinglePlayer.prototype.loose = function(){
 
     this.msg.text = "PC win. You lost!";
     this.msg.visible = true;
-    this.softPause();
+    this.startEndMenu();
 }
 
 SinglePlayer.prototype.updatePlayerTexture = function(){
@@ -277,13 +296,13 @@ SinglePlayer.prototype.updatePlayerTexture = function(){
 }
 
 // TODO: add timer recycle
-var repositionTimers = [];
 SinglePlayer.prototype.reposition = function(){
     this.ball.exists = true;
-    this.ball.x = this.world.centerX;
-    this.ball.y = this.world.centerY;
+    this.ball.anchor.set(0.5);
     this.ball.body.velocity.set(0);
     this.ball.body.acceleration.set(0);
+    this.ball.x = this.world.centerX;
+    this.ball.y = this.world.centerY;
 
     this.enemyBoard.x = this.world.centerX;
     this.enemyBoard.y = Settings.padding;
@@ -294,12 +313,16 @@ SinglePlayer.prototype.reposition = function(){
     this.playerBoard.y = this.game.height-Settings.padding;
     this.playerBoard.body.velocity.set(0);
     this.playerBoard.body.acceleration.set(0);
+}
 
-    this.msg.visible = true;
 
-    this.msg.text = "3";
-    // this.msg.anchor.set(0.5);
-    var msg = this.msg;
+SinglePlayer.prototype.restartParty = function(){
+    this.reposition();
+
+    this.timerMsg.visible = true;
+
+    this.timerMsg.text = "3";
+    var msg = this.timerMsg;
     var that = this;
 
     this.time.events.repeat(Phaser.Timer.SECOND/2, 2,  function(){
@@ -317,7 +340,4 @@ SinglePlayer.prototype.reposition = function(){
         if(chance <= 0.5)
             that.ball.body.velocity.y *= -1; 
     });
-   
 }
-
-
