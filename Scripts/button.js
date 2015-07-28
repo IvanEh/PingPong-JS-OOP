@@ -1,8 +1,11 @@
 function Button(caption, x, y, width, height, state, color, onClick){
 	this.caption = caption;
 	this.color = color;
-	this.game = state.game;
+	this.state = state;
 	this.shadowWidth = 3;
+	this._handlePause = false;
+	this.onClick = onClick;
+	this._fontColor = "#0000ff";
 
 	if(x == "center"){
 		x = (state.game.width - width)/2;
@@ -32,6 +35,43 @@ Button.prototype.updateTexture = function() {
 
 	this.texture.shadow();
 
-	var fontColor = "#0000ff";
-	this.texture.text(this.caption, x, y, ctx.font, fontColor, true);
+	this.texture.text(this.caption, x, y, ctx.font, this._fontColor, true);
 };
+
+Object.defineProperty(Button.prototype, "handlePause", 
+{
+	get: function(){
+		return this._handlePause;
+	},
+
+	set: function(val){
+		if(val){
+			this._handlePause = true;
+			this._listener = this.state.input.onUp.add(
+			function(e) {
+				var rect = new Phaser.Rectangle(this.sprite.x, this.sprite.y,
+						this.sprite.width, this.sprite.height);
+				if(rect.contains(e.x, e.y)){
+					this.onClick();
+				}
+			}, this);
+		}else{
+			this._handlePause = false;
+			this._listener.detach();
+			this._listener = null;
+		}
+	}
+}
+);
+
+Object.defineProperty(Button.prototype, "fontColor", 
+{
+	get: function() {
+		return this._fontColor;
+	},
+
+	set: function(val) {
+		this._fontColor = val;
+		this.updateTexture();
+	}
+});

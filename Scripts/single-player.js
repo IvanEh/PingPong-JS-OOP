@@ -9,7 +9,7 @@ Settings = {
 		maxVelocity: new Phaser.Point(500, 400),
 	},
 
-	winScore: 3,
+	winScore: 1,
 	drag: 200,
 	padding: 25,
 }
@@ -27,7 +27,7 @@ function SinglePlayer(){
 	 this.score= {player: 0, enemy: 0};
 	 this.cursors;
      this.displayMarkers = [];
-
+     this.mainMenuBtn;
 	 // this.game.stage.smoothed = false;
 }
 
@@ -37,10 +37,32 @@ SinglePlayer.prototype.preload = function(){
     this.load.spritesheet('markers', 'assets/markers.png', 9, 9, 3);
 }
 
+
 SinglePlayer.prototype.create = function(){
     this.physics.startSystem(Phaser.Physics.ARCADE);
-
+  
     this.stage.backgroundColor = '#80c0c5';
+  
+    this.mainMenuBtn = new Button("Main menu", "center", this.game.world.centerY/2 + 15, 150, 30, this, "rgb(60, 0, 0)", function(_this){return function() {
+        _this.state.start("MainMenu");
+        _this.unsoftPause();
+    }}(this));
+    this.mainMenuBtn.sprite.kill();
+    this.mainMenuBtn.fontColor = "rgb(130, 143, 208)";
+
+    this.restartMenu = new Button("Restart", "center", this.mainMenuBtn.sprite.bottom + 15, 150, 30, this, "rgb(60, 0, 0)", function(_this){return function() {
+        _this.unsoftPause();
+        _this.reposition();
+        _this.score.player = 0;
+        _this.score.enemy = 0;
+    }}(this));
+    this.restartMenu.sprite.kill();
+    this.restartMenu.fontColor = "rgb(130, 143, 208)";
+
+    this.mainMenuBtn.handlePause = true;
+    this.restartMenu.handlePause = true;
+
+
     // var background = new TriangBackground(this);
 	this.game.stage.smoothed = false;
 
@@ -59,6 +81,7 @@ SinglePlayer.prototype.create = function(){
 
 
 SinglePlayer.prototype.update = function(){
+
     this.physics.arcade.collide(this.ball, this.playerBoard, this.onCollideBall, null, this);
     this.physics.arcade.collide(this.ball, this.enemyBoard, this.onCollideBall, null, this);
     this.physics.arcade.overlap(this.ball, this.trigger.win, this.onWin,null,  this);
@@ -99,6 +122,18 @@ SinglePlayer.prototype.update = function(){
 SinglePlayer.prototype.render = function(){
 }
 
+
+SinglePlayer.prototype.softPause = function(){
+    this.game.paused = true;
+    this.mainMenuBtn.sprite.revive();
+    this.restartMenu.sprite.revive();
+}
+
+SinglePlayer.prototype.unsoftPause = function() {
+    this.game.paused = false;
+    this.mainMenuBtn.sprite.kill();
+    this.restartMenu.sprite.kill();
+};
 
 SinglePlayer.prototype.setUpPlayer = function() {
     this.playerBoardTexture = this.make.bitmapData(96, 12);
@@ -155,7 +190,7 @@ SinglePlayer.prototype.setUpGUI = function() {
     this.markers();
 
     this.scoreText = this.add.text(this.game.width - 60, 8, "0 - 0", {font: "18px Arial"});
-    this.msg = this.add.text(this.world.centerX, this.world.centerY, "3");
+    this.msg = this.add.text(this.world.centerX, this.world.centerY/2, "3");
     this.msg.anchor.set(0.5);
     this.msg.setStyle({fontSize:"21px"});
     this.msg.visible = false;
@@ -217,6 +252,7 @@ SinglePlayer.prototype.win = function(){
 
     this.msg.text = "Player win";
     this.msg.visible = true;
+    this.softPause();
 }
 
 SinglePlayer.prototype.loose = function(){
@@ -228,6 +264,7 @@ SinglePlayer.prototype.loose = function(){
 
     this.msg.text = "PC win. You lost!";
     this.msg.visible = true;
+    this.softPause();
 }
 
 SinglePlayer.prototype.updatePlayerTexture = function(){
@@ -242,6 +279,7 @@ SinglePlayer.prototype.updatePlayerTexture = function(){
 // TODO: add timer recycle
 var repositionTimers = [];
 SinglePlayer.prototype.reposition = function(){
+    this.ball.exists = true;
     this.ball.x = this.world.centerX;
     this.ball.y = this.world.centerY;
     this.ball.body.velocity.set(0);
