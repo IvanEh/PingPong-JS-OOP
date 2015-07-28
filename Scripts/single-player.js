@@ -131,6 +131,7 @@ SinglePlayer.prototype.setUpEndMenu = function(){
             _this.restartParty();
             _this.score.player = 0;
             _this.score.enemy = 0;
+            _this.msg.visible = false;
         }
     }(this)    );
     
