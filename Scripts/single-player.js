@@ -28,6 +28,7 @@ function SinglePlayer(){
 	 this.cursors;
      this.displayMarkers = [];
      this.mainMenuBtn;
+     this.tutorMsg;
 	 // this.game.stage.smoothed = false;
 }
 
@@ -214,6 +215,12 @@ SinglePlayer.prototype.setUpGUI = function() {
     this.timerMsg.setStyle({fontSize:"21px"});
     this.timerMsg.visible = false;
 
+    this.tutorMsg = this.add.text(this.world.centerX, this.ball.bottom + 10, "Controlls: right left / up down");
+    this.tutorMsg.anchor.set(0.5);
+    this.tutorMsg.setStyle({fontSize: "12px", fill: "gray"});
+    this.time.events.add(Phaser.Timer.SECOND, function(){
+        this.tutorMsg.visible = false;
+    }, this);
 };
 
 SinglePlayer.prototype.markers = function () {
