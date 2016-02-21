@@ -9,10 +9,11 @@ function PrimitiveAI(game, board, ball){
 
 PrimitiveAI.prototype.update = function() {
 	var ball = this.AI.ball;
-	if(ball.x > this.x)
+	var delta = 30;
+	if(ball.x > this.x + delta)
 		this.body.acceleration.x = Settings.player.acceleration.x;
 	else
-	if(ball.x < this.x)
+	if(ball.x < this.x - delta)
 		this.body.acceleration.x = -Settings.player.acceleration.x;
 	else
 		this.body.acceleration.x = 0;
